@@ -27,7 +27,7 @@
 <language id="js" name="JavaScript" version="2.0" _section="Script">
   <metadata>
     <property name="mimetypes">application/javascript;application/x-javascript;text/x-javascript;text/javascript;text/x-js</property>
-    <property name="globs">*.js;*.mjs</property>
+    <property name="globs">*.js;*.mjs;*.node</property>
     <property name="line-comment-start">//</property>
     <property name="block-comment-start">/*</property>
     <property name="block-comment-end">*/</property>
@@ -517,6 +517,18 @@
       # * generator()
       (?= \%{js:generator-modifier} )
     </define-regex> <!-- /method-keyword -->
+
+    <!-- <NullLiteral> -->
+    <context id="null-value" style-ref="null-value">
+      <match>\%{js:null-keyword}</match>
+    </context> <!-- /null-value -->
+
+    <!-- <BooleanLiteral> -->
+    <context id="boolean" style-ref="boolean">
+      <match extended="true">
+        \%{js:false-keyword} | \%{js:true-keyword}
+      </match>
+    </context> <!-- /boolean -->
 
     <!-- ## Embedded lang hooks
 
