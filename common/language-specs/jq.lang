@@ -13,6 +13,7 @@
     <style id="builtin-statement" name="Builtin Statement"     map-to="def:statement"/>
     <style id="builtin-function"  name="Builtin Function"      map-to="def:builtin"/>
     <style id="function"          name="Function"              map-to="def:function"/>
+    <style id="module-function"   name="Function"              map-to="def:function"/>
     <style id="variable"          name="Variable"              map-to="def:type"/>
     <style id="keyname"           name="Key"                   map-to="js:string"/>
     <style id="special-char"      name="Escaped Character"     map-to="js:escape"/>
@@ -280,6 +281,32 @@
       <keyword>yn</keyword>
     </context>
 
+    <context id="module-function">
+      <match>\b(\%{identifier})::(\%{identifier})</match>
+      <include>
+        <context sub-pattern="1" style-ref="keyword"/>
+        <context sub-pattern="2" style-ref="function"/>
+      </include>
+    </context>
+
+    <context id="module-function-with-args">
+      <start>\b(\%{identifier})::(\%{identifier})\s+\(</start>
+	  <end>\)</end>
+      <include>
+        <context sub-pattern="1" style-ref="keyword" where="start" />
+        <context sub-pattern="2" style-ref="function" where="start" />
+	    <context ref="filter-program" />
+		<context end-parent="true">
+		  <start>;</start>
+		  <include>
+		    <context ref="filter-program" />
+		  </include>
+		</context>
+      </include>
+    </context>
+
+
+
     <context id="function-definitions">
       <match>\b(def) (\%{identifier})</match>
       <include>
@@ -367,6 +394,7 @@
       <start>\{</start>
       <end>\}</end>
       <include>
+        <context ref="sh:line-comment"/>
         <context ref="object-key-name"/>
         <context>
           <start>:</start>
@@ -381,11 +409,14 @@
 
     <context id="expression">
       <include>
+        <context ref="sh:line-comment"/>
         <context ref="object-key"/>
         <context ref="variables"/>
         <context ref="keywords"/>
         <context ref="builtin-statements"/>
         <context ref="builtin-functions"/>
+        <context ref="module-function-with-args" />
+        <context ref="module-function" />
         <context ref="formatter" />
         <context ref="function-definitions"/>
         <context ref="function-bodies"/>
@@ -404,9 +435,20 @@
       </include>
     </context>
 
+    <context id="named-import" style-ref="builtin-statement">
+      <match>\b(import)\s+(".+")\s+(as)\s+(\%{identifier})\s*;</match>
+      <include>
+        <context sub-pattern="1" style-ref="keyword"/>
+        <context sub-pattern="2" style-ref="string"/>
+        <context sub-pattern="3" style-ref="keyword"/>
+        <context sub-pattern="4" style-ref="variable"/>
+      </include>
+    </context>
+
     <context id="jq">
       <include>
         <context ref="def:shebang"/>
+        <context ref="named-import"/>
         <context ref="filter-program"/>
       </include>
     </context>
