@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language id="git-config" name="GitConfig" version="2.0"  _section="Others">
+  <metadata>
+    <property name="globs">.gitconfig;config</property>
+	<property name="line-comment-start">#</property>
+  </metadata>
+  <styles>
+    <style id="comment"          _name="Comment"              map-to="def:comment"/>
+    <style id="values"           _name="Keyword"              map-to="def:special-constant"/>
+    <style id="section"          _name="Section"              map-to="def:type"/>
+    <style id="number"           _name="Number"               map-to="def:decimal"/>
+    <style id="key"              _name="Key"                  map-to="def:identifier"/>
+    <style id="string"           _name="String"               map-to="def:string"/>
+  </styles>
+
+  <definitions>
+    <define-regex id="identifier" extended="true">[a-zA-Z0-9_-]+</define-regex>
+
+    <context id="section" end-at-line-end="true" style-ref="section">
+      <start>\[\s*(\%{identifier})</start>
+      <end>\]\s*$</end>
+      <include>
+        <context sub-pattern="1" where="start" style-ref="section"/>
+	    <context ref="def:string"/>
+      </include>
+    </context>
+
+    <!-- context id="section">
+      <match>^\s*\[\s*(\%{identifier})(\s+\%{string})?\s*\]\s*$</match>
+      <include>
+        <context id="section" sub-pattern="1" style-ref="section"/>
+        <context id="subsection" sub-pattern="2" style-ref="string"/>
+      </include>
+    </context -->
+
+	<context id="values" style-ref="values">
+      <keyword>true</keyword>
+      <keyword>false</keyword>
+      <keyword>yes</keyword>
+      <keyword>no</keyword>
+      <keyword>on</keyword>
+      <keyword>off</keyword>
+      <keyword>auto</keyword>
+      <keyword>always</keyword>
+      <keyword>never</keyword>
+	</context>
+
+	<context id="string-like" style-ref="string">
+		<match>.*</match>
+	</context>
+
+    <context id="key-value-pair">
+      <start>^\s*(\%{identifier})\s*=\s*</start>
+      <end>$</end>
+      <include>
+        <context sub-pattern="1" where="start" style-ref="key"/>
+        <context ref="values" />
+        <context ref="def:string" />
+        <context ref="def:single-quoted-string"/>
+        <context ref="string-like" />
+      </include>
+    </context>
+
+
+    <context id="git-config" class="no-spell-check">
+      <include>
+        <context ref="def:shell-like-comment"/>
+        <context ref="section"/>
+        <context ref="key-value-pair"/>
+      </include>
+    </context>
+  </definitions>
+</language>
